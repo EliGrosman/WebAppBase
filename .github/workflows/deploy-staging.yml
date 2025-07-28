@@ -22,6 +22,7 @@ jobs:
           cat > .env << EOF
           ENVIRONMENT=staging
           DOMAIN=${{ secrets.DOMAIN_STAGING }}
+          PROJECT_NAME=${{ secrets.PROJECT_NAME }}
           FRONTEND_HOST=${{ secrets.FRONTEND_HOST }}
           STACK_NAME=${{ secrets.STACK_NAME_STAGING }}
           SECRET_KEY=${{ secrets.SECRET_KEY }}

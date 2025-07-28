@@ -146,7 +146,7 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=https://api.${DOMAIN:-eli.com}
+        - VITE_API_URL=http://api.${DOMAIN:-eli.com}
         - NODE_ENV=production
     environment:
       <<: *common-env

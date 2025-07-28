@@ -1,9 +1,9 @@
 x-common-env: &common-env
   DOMAIN: ${DOMAIN:-localhost}
   PROJECT_NAME: ${PROJECT_NAME:-webapp}
-  FRONTEND_HOST: ${FRONTEND_HOST:-https://dashboard.${DOMAIN:-localhost}}
+  FRONTEND_HOST: ${FRONTEND_HOST:-http://dashboard.${DOMAIN:-localhost}}
   ENVIRONMENT: ${ENVIRONMENT:-local}
-  BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-https://dashboard.${DOMAIN:-localhost}}
+  BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://dashboard.${DOMAIN:-localhost}}
   SECRET_KEY: ${SECRET_KEY:-changethis-insecure-key-for-development-only}
   FIRST_SUPERUSER: ${FIRST_SUPERUSER:-admin@example.com}
   FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-changethis}
@@ -53,11 +53,6 @@ services:
       - traefik.constraint-label=traefik-public
       - traefik.http.routers.${STACK_NAME:-webapp}-adminer-http.rule=Host(`adminer.${DOMAIN:-localhost}`)
       - traefik.http.routers.${STACK_NAME:-webapp}-adminer-http.entrypoints=http
-      - traefik.http.routers.${STACK_NAME:-webapp}-adminer-http.middlewares=https-redirect
-      - traefik.http.routers.${STACK_NAME:-webapp}-adminer-https.rule=Host(`adminer.${DOMAIN:-localhost}`)
-      - traefik.http.routers.${STACK_NAME:-webapp}-adminer-https.entrypoints=https
-      - traefik.http.routers.${STACK_NAME:-webapp}-adminer-https.tls=true
-      - traefik.http.routers.${STACK_NAME:-webapp}-adminer-https.tls.certresolver=le
       - traefik.http.services.${STACK_NAME:-webapp}-adminer.loadbalancer.server.port=8080
 
   prestart:
@@ -105,11 +100,6 @@ services:
       - traefik.http.services.${STACK_NAME:-webapp}-backend.loadbalancer.server.port=8000
       - traefik.http.routers.${STACK_NAME:-webapp}-backend-http.rule=Host(`api.${DOMAIN:-localhost}`)
       - traefik.http.routers.${STACK_NAME:-webapp}-backend-http.entrypoints=http
-      - traefik.http.routers.${STACK_NAME:-webapp}-backend-http.middlewares=https-redirect
-      - traefik.http.routers.${STACK_NAME:-webapp}-backend-https.rule=Host(`api.${DOMAIN:-localhost}`)
-      - traefik.http.routers.${STACK_NAME:-webapp}-backend-https.entrypoints=https
-      - traefik.http.routers.${STACK_NAME:-webapp}-backend-https.tls=true
-      - traefik.http.routers.${STACK_NAME:-webapp}-backend-https.tls.certresolver=le
 
   frontend:
     image: '${DOCKER_IMAGE_FRONTEND:-webapp-frontend}:${TAG:-latest}'
@@ -120,7 +110,7 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=https://api.${DOMAIN:-localhost}
+        - VITE_API_URL=http://api.${DOMAIN:-localhost}
         - NODE_ENV=production
     environment:
       <<: *common-env
@@ -129,13 +119,9 @@ services:
       - traefik.docker.network=traefik-public
       - traefik.constraint-label=traefik-public
       - traefik.http.services.${STACK_NAME:-webapp}-frontend.loadbalancer.server.port=80
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-http.rule=Host(`${DOMAIN:-localhost}`)
+      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-http.rule=Host(`dashboard.${DOMAIN:-localhost}`)
       - traefik.http.routers.${STACK_NAME:-webapp}-frontend-http.entrypoints=http
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-http.middlewares=https-redirect
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-https.rule=Host(`${DOMAIN:-localhost}`)
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-https.entrypoints=https
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-https.tls=true
-      - traefik.http.routers.${STACK_NAME:-webapp}-frontend-https.tls.certresolver=le
+
 
 volumes:
   app-db-data:

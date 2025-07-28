@@ -49,6 +49,7 @@ services:
     command: bash scripts/prestart.sh
     environment:
       - DOMAIN=${DOMAIN}
+      - PROJECT_NAME=${PROJECT_NAME}
       - FRONTEND_HOST=${FRONTEND_HOST}
       - ENVIRONMENT=${ENVIRONMENT}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}

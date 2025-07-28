@@ -1,3 +1,23 @@
+x-common-env: &common-env
+  DOMAIN: ${DOMAIN}
+  PROJECT_NAME: ${PROJECT_NAME}
+  FRONTEND_HOST: ${FRONTEND_HOST}
+  ENVIRONMENT: ${ENVIRONMENT}
+  BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+  SECRET_KEY: ${SECRET_KEY}
+  FIRST_SUPERUSER: ${FIRST_SUPERUSER}
+  FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD}
+  SMTP_HOST: ${SMTP_HOST}
+  SMTP_USER: ${SMTP_USER}
+  SMTP_PASSWORD: ${SMTP_PASSWORD}
+  EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
+  POSTGRES_SERVER: db
+  POSTGRES_PORT: ${POSTGRES_PORT}
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  SENTRY_DSN: ${SENTRY_DSN}
+
 services:
 
   db:
@@ -48,24 +68,7 @@ services:
         restart: true
     command: bash scripts/prestart.sh
     environment:
-      - DOMAIN=${DOMAIN}
-      - PROJECT_NAME=${PROJECT_NAME}
-      - FRONTEND_HOST=${FRONTEND_HOST}
-      - ENVIRONMENT=${ENVIRONMENT}
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
-      - SECRET_KEY=${SECRET_KEY}
-      - FIRST_SUPERUSER=${FIRST_SUPERUSER}
-      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
-      - POSTGRES_SERVER=db
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - SENTRY_DSN=${SENTRY_DSN}
+      <<: *common-env
 
   backend:
     image: '${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
@@ -80,24 +83,7 @@ services:
       prestart:
         condition: service_completed_successfully
     environment:
-      - DOMAIN=${DOMAIN}
-      - PROJECT_NAME=${PROJECT_NAME}
-      - FRONTEND_HOST=${FRONTEND_HOST}
-      - ENVIRONMENT=${ENVIRONMENT}
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
-      - SECRET_KEY=${SECRET_KEY}
-      - FIRST_SUPERUSER=${FIRST_SUPERUSER}
-      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
-      - POSTGRES_SERVER=db
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - SENTRY_DSN=${SENTRY_DSN}
+      <<: *common-env
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
@@ -129,6 +115,8 @@ services:
       args:
         - VITE_API_URL=http://api.${DOMAIN}
         - NODE_ENV=production
+    environment:
+      <<: *common-env
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public

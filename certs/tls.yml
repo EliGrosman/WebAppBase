@@ -1,0 +1,11 @@
+tls:
+  certificates:
+    - certFile: /certs/eli.com.crt
+      keyFile: /certs/eli.com.key
+      stores:
+        - default
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/eli.com.crt
+        keyFile: /certs/eli.com.key

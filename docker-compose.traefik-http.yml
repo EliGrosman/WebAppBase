@@ -1,44 +1,28 @@
 services:
   traefik:
-    image: traefik:3.0
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
     ports:
-      # Listen on port 80, default for HTTP
-      - 80:80
-    restart: always
-    labels:
-      # Enable Traefik for this service, to make it available in the public network
-      - traefik.enable=true
-      # Use the traefik-public network (declared below)
-      - traefik.docker.network=traefik-public
-      # Define the port inside of the Docker service to use
-      - traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080
-      # Make Traefik use this domain (from an environment variable) in HTTP
-      - traefik.http.routers.traefik-dashboard-http.entrypoints=http
-      - traefik.http.routers.traefik-dashboard-http.rule=Host(`traefik.${DOMAIN?Variable not set}`)
-      # admin-auth middleware with HTTP Basic auth
-      # Using the environment variables USERNAME and HASHED_PASSWORD
-      - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
-      # Enable HTTP Basic auth, using the middleware created above
-      - traefik.http.routers.traefik-dashboard-http.middlewares=admin-auth
+      - "80:80"
+      - "8080:8080"  # Dashboard
     volumes:
-      # Add Docker as a mounted volume, so that Traefik can read the labels of other services
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
-      # Enable Docker in Traefik, so that it reads labels from Docker services
-      - --providers.docker
-      # Do not expose all Docker services, only the ones explicitly exposed
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # Create an entrypoint "http" listening on port 80
-      - --entrypoints.http.address=:80
-      # Enable the access log, with HTTP requests
+      - --providers.docker.network=traefik-public
+      - --entrypoints.web.address=:80
       - --accesslog
-      # Enable the Traefik log, for configurations and errors
       - --log
-      # Enable the Dashboard and API
-      - --api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN:-eli.com}`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.entrypoints=web"
     networks:
-      # Use the public network created to be shared between Traefik and
-      # any other service that needs to be publicly available with HTTP
       - traefik-public
 
 networks:

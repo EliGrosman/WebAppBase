@@ -18,7 +18,6 @@ services:
       - traefik.http.routers.traefik-dashboard-https.service=api@internal
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      - traefik.http.routers.traefik-dashboard-http.middlewares=https-redirect
       - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
       - traefik.http.routers.traefik-dashboard-https.middlewares=admin-auth
     volumes:

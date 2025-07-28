@@ -170,4 +170,3 @@ volumes:
 networks:
   traefik-public:
     external: true
-    

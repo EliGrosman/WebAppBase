@@ -8,24 +8,30 @@ This is a full-stack FastAPI template with React frontend:
 
 - **Backend**: FastAPI + SQLModel + PostgreSQL (in `/backend/`)
 - **Frontend**: React + TypeScript + Vite + Chakra UI (in `/frontend/`)
-- **Development**: Docker Compose for containerized development
+- **Development**: Docker Compose with Traefik proxy for containerized development
 - **Database**: PostgreSQL with Alembic migrations
 - **Authentication**: JWT tokens with password hashing
+- **Proxy**: Traefik v3.1 with self-signed certificates for HTTPS
 
 ## Development Commands
 
 ### Docker Compose (Recommended)
 ```bash
-# Start full stack with hot reload
-docker compose watch
+# Start full stack with HTTPS (main setup)
+docker compose up -d
 
-# Stop specific services
-docker compose stop frontend
-docker compose stop backend
+# Start with HTTP-only (development)
+docker compose -f docker-compose.dev.yml up -d
+
+# Stop services
+docker compose down
 
 # View logs
 docker compose logs
-docker compose logs backend
+docker compose logs backend frontend
+
+# Rebuild specific service
+docker compose build backend --no-cache
 ```
 
 ### Backend Development
@@ -105,19 +111,33 @@ bash scripts/test.sh
 
 ## Development URLs
 
-### With Custom Domain (Traefik Proxy)
-- Frontend: http://eli.com
-- Backend: http://api.eli.com
-- API Docs: http://api.eli.com/docs
+### HTTPS Setup (docker-compose.yml)
+- Frontend: https://dashboard.eli.com
+- Backend API: https://api.eli.com
+- API Docs: https://api.eli.com/docs
+- Database Admin: https://adminer.eli.com
+- Traefik Dashboard: https://traefik.eli.com
+- Database Direct: localhost:5433 (if port mapping enabled)
 
-### Direct Access (Default Ports)
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- Database Admin: http://localhost:8080
+### HTTP-Only Setup (docker-compose.dev.yml)
+- Frontend: http://dashboard.eli.com
+- Backend API: http://api.eli.com
+- API Docs: http://api.eli.com/docs
+- Database Admin: http://adminer.eli.com
+- Traefik Dashboard: http://traefik.eli.com
+
+### Alternative Compose Files
+- `docker-compose.traefik.yml` - Standalone Traefik with HTTPS
+- `docker-compose.traefik-http.yml` - Standalone Traefik HTTP-only
 
 ## Environment Configuration
-- `.env` files control Docker Compose behavior
-- Backend environment in `backend/.env`
-- Frontend environment in `frontend/.env`
-- Change `SECRET_KEY`, `FIRST_SUPERUSER_PASSWORD`, `POSTGRES_PASSWORD` before deployment
+- No `.env` file required - all variables have defaults
+- Override via environment variables (useful for GitHub Actions)
+- Key variables: `DOMAIN`, `SECRET_KEY`, `POSTGRES_PASSWORD`
+- Self-signed certificates in `/certs/` for HTTPS support
+- Traefik network: `traefik-public` (created automatically)
+
+## Certificates
+- Self-signed certificate covers `*.eli.com`
+- Browser will show security warning - click "Advanced" → "Proceed"
+- Certificate files: `certs/eli.com.crt` and `certs/eli.com.key`
